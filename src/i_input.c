@@ -72,10 +72,14 @@ static unsigned char toDoomKey(unsigned int key)
       key = KEY_ESCAPE;
       break;
     case SDLK_a:
+      key = KEY_STRAFE_L;
+      break;
+    case SDLK_d:
+      key = KEY_STRAFE_R;
+      break;
     case SDLK_LEFT:
       key = KEY_LEFTARROW;
       break;
-    case SDLK_d:
     case SDLK_RIGHT:
       key = KEY_RIGHTARROW;
       break;
@@ -137,27 +141,34 @@ static void SDL_PollEvents()
 
     if (e.type == SDL_KEYDOWN) 
     {
-      //printf("KeyPress:%d sym:%d\n", e.xkey.keycode, sym);
       queueKeyPress(1, e.key.keysym.sym);
     } 
     else if (e.type == SDL_KEYUP) 
     {
-      //printf("KeyRelease:%d sym:%d\n", e.xkey.keycode, sym);
       queueKeyPress(0, e.key.keysym.sym);
     }
     else if(e.type == SDL_MOUSEBUTTONDOWN) 
     {
-      //printf("SDL_MOUSE_PRESSED: %d\n", e.button.button);
       queueKeyPress(1, e.button.button);
     }
     else if(e.type == SDL_MOUSEBUTTONUP)
     {
-      //printf("SDL_MOUSE_RELEASED: %d\n", e.button.button);
       queueKeyPress(0, e.button.button);
     }
+    // --- Add this block for mouse movement ---
+    else if (e.type == SDL_MOUSEMOTION)
+    {
+      float sensitivity = 2.0f; // Adjust this value to change sensitivity
 
+      // Post a mouse movement event to DOOM's event system
+      event_t event;
+      event.type = ev_mouse;
+      event.data1 = 0; // buttons (not used here)
+      event.data2 = (int)(e.motion.xrel * sensitivity); // relative x movement
+      event.data3 = (int)(-e.motion.yrel * sensitivity * 0); // relative y movement
+      D_PostEvent(&event);
+    }
   }
-
 }
 
 int GetKey(int* pressed, unsigned char* doomKey)

@@ -1,99 +1,68 @@
 import Module from '../wasm/wasm-doom.js';
 
-const sharewhare = window.location.href + '/shareware.wad';
-console.log(sharewhare);
-let canvas = document.getElementById('canvas');
-canvas.width = 320;
-canvas.height = 200;
-canvas.style.cursor = 'none';
-canvas.style.display = 'none';
+const canvas = document.getElementById('canvas');
+const startBtn = document.getElementById('start-btn');
+let started = false;
+let doom;
 
-// As a default initial behavior, pop up an alert when webgl context is lost. To make your
-// application robust, you may want to override this behavior before shipping!
-// See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
-canvas.addEventListener("webglcontextlost", (e) => { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+canvas.style.display = 'block';
+canvas.tabIndex = 0; // allow keyboard focus
 
-// Create a canvas element and attach it to the body
-let module_args = {
+const module_args = {
     canvas: canvas,
-    // From https://emscripten.org/docs/porting/files/packaging_files.html?#changing-the-data-file-location
-    // It states that the default location is the same as where the wasm file is hosted, this is not the case for us
-    // it will only work out of the box if the wasm file is in the same directory as the html index
-    // so we need to specify the location of the wasm file
     locateFile: (remote_package_base, _) => {
         return 'wasm/' + remote_package_base;
     }
-}
-
+};
 
 function validateWadFile(buffer) {
-    // Check if the file is valid by checking the first 4 bytes of the file
-    // if they are not 'IWAD' then the file is not valid
-    // If the buffer is empty or the file is not a valid WAD file
-    if (buffer.length === 0 || buffer.length < 4) {
-        console.error('Empty buffer');
-        return false;
-    }
-    if (String.fromCharCode(buffer[0], buffer[1], buffer[2], buffer[3]) !== 'IWAD') {
-        console.error('Invalid WAD file');
-        return false;
-    }
-    return true;
+    if (buffer.length < 4) return false;
+    const header = String.fromCharCode(buffer[0], buffer[1], buffer[2], buffer[3]);
+    return header === 'IWAD' || header === 'PWAD';
 }
 
-const doom = await Module(module_args);
-const btnFileUpload = document.getElementById('wad-upload');
-const btnUseShareWare = document.getElementById('btn-use-shareware');
-const btnTeslaMode = document.getElementById('btn-tesla-mode');
+async function startDoomWithShareware() {
+    if (started) return;
+    started = true;
+    startBtn.style.display = 'none';
 
-function LoadDoom(buffer) {
-    let errorLabel = document.querySelector('.error-label');
-    if (!validateWadFile(buffer)) {
-        errorLabel.style.display = 'block';
+    doom = await Module(module_args);
+
+    const response = await fetch('./shareware.wad');
+    const arrBuffer = await response.arrayBuffer();
+    const wadBuffer = new Uint8Array(arrBuffer);
+
+    if (!validateWadFile(wadBuffer)) {
+        alert('Shareware WAD is missing or invalid.');
         return;
     }
-    errorLabel.style.display = 'none';
-    canvas.style.display = 'block';
-    doom.FS.writeFile('/doom-data.wad', buffer);
+
+    doom.FS.writeFile('/doom-data.wad', wadBuffer);
     doom.callMain(['-iwad', 'doom-data.wad']);
+    canvas.focus();
 }
 
-btnFileUpload.addEventListener('change', (e) => { 
-    let file = e.target.files[0];
-    let reader = new FileReader();
-    reader.onload = (e) => {
-        let buffer = new Uint8Array(e.target.result);
-        LoadDoom(buffer);
+startBtn.addEventListener('click', startDoomWithShareware);
+
+// No fullscreen logic, no upload/shareware buttons, just a windowed canvas.
+
+function resizeCanvas() {
+    const aspect = 640 / 400; // or your game's aspect ratio
+    let width = Math.floor(window.innerWidth * 0.9);
+    let height = Math.floor(width / aspect);
+
+    // If height is too big for viewport, scale down
+    if (height > window.innerHeight * 0.9) {
+        height = Math.floor(window.innerHeight * 0.9);
+        width = Math.floor(height * aspect);
     }
-    reader.readAsArrayBuffer(file);
-    console.log('file uploaded');
-});
 
-btnUseShareWare.addEventListener('click', () => {
-    // Download the file and load it into the wasm module
-    fetch(sharewhare)
-        .then(response => response.arrayBuffer())
-        .then(arrBuffer => {
-            let buffer = new Uint8Array(arrBuffer)
-            LoadDoom(buffer);
-        });
-});
-
-btnTeslaMode.addEventListener('click', () => { 
-    let urlString = "https://www.youtube.com/redirect?q=" + window.location.href
-    let url = new URL(urlString);
-    window.location.href = url;
-});
-
-
-document.addEventListener("fullscreenchange", () => {
-    if (document.fullscreenElement) {
-        console.log("Application is now in fullscreen mode");
-    } else {
-        console.log("Application exited fullscreen mode");
-        canvas.style.display = 'none';
-        document.body.style.background = '';
-    }
-});
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
 

@@ -233,7 +233,7 @@ void I_InitGraphics (void)
     else 
     {
         window = SDL_CreateWindow("DOOM", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-            SDL_RESX, SDL_RESY, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            SDL_RESX, SDL_RESY, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
         renderer =  SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, 
             SDL_RESX, SDL_RESY);
@@ -244,6 +244,9 @@ void I_InitGraphics (void)
         SDL_RenderPresent(renderer);
 
         printf("I_InitGraphics: Init SDL video.\n");
+
+        // Add this line to enable raw mouse input (pointer lock)
+        SDL_SetRelativeMouseMode(SDL_TRUE);
     }
 
     extern int I_InitInput(void);

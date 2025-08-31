@@ -2,41 +2,18 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>WASM Doom</title>
+  <title>Alex's DOOM</title>
   <script type="module" src="./wasm/wasm-doom.js"></script>
   <script type="module" src="./scripts/doom.js"></script>
   <link rel="stylesheet" href="./styles/styles.css">
 </head>
 <body>
-  <div class="file-upload-prompt vertical-center">
-	<div>	
-		<div class="app-title">
-			<div class="title-wasm-container">
-				<div class="title title-wasm">
-					<h2 class="title-left">Wa</h2>
-					<h2 class="title-right">sM</h2>
-				</div>
-			</div>
-			<div class="title title-doom">
-				<h1 class="title-left">DO</h1>
-				<h1 class="title-right">OM</h1>
-			</div>
-		</div>
-		<div style="margin-bottom: 2rem; display: block;">
-			<input type="file" style="display: none;" id="wad-upload">
-			<label for="wad-upload" class="custom-file-upload">Upload .wad File</label>
-			<p class="error-label" style="display: none; color: red;">The uploaded file is not valid</p>
-			<button id="btn-use-shareware" class="custom-file-upload">Use shareware</button>
-		</div>
-		<p style="display: block;">
-			<button id="btn-tesla-mode">Activate Tesla mode</button>
-		</p>
-		<canvas id="canvas"></canvas>
-	</div>
-  </body>
-
-  <footer>
-	WASM DOOM port by Thomas Van Iseghem
-  </footer>
+  <div class="wave-border"></div>
+  <div id="doom-root">
+    <div id="canvas-container">
+      <canvas id="canvas" width="640" height="400" tabindex="0"></canvas>
+      <button id="start-btn">Start</button>
+    </div>
   </div>
+</body>
 </html>

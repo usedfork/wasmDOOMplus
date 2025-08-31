@@ -106,10 +106,11 @@ footer {
 }
 
 .vertical-center {
+  min-height: 100vh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  height: 100vh;
+  align-items: center;
 }
 
 .custom-file-upload {
@@ -143,4 +144,59 @@ input[type="file"] {
 
 input[type="file"]:hover {
 	border-color: #777;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #000000;
+}
+
+#doom-root {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#canvas-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 8px solid #501c6a; /* Deep purple border */
+  border-radius: 12px;        /* Optional: rounded corners */
+  background: #5f03af;           /* Optional: background behind canvas */
+  box-sizing: border-box;
+}
+
+#canvas {
+  display: block;
+  background: #000;
+  border: 2px solid #444;
+  outline: none;
+}
+
+#start-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  padding: 1rem 2.5rem;
+  cursor: pointer;
+  z-index: 2;
+  background: #501c6a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(80,28,106,0.15);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+#start-btn:hover {
+  background: #6d2c91;
+  box-shadow: 0 4px 16px rgba(80,28,106,0.25);
 }
